@@ -1,4 +1,4 @@
-package com.antler.mft.server;
+package com.antler.mft.server.rpc;
 
 import com.antler.mft.protocol.RpcDecoder;
 import com.antler.mft.protocol.RpcEncoder;
@@ -10,14 +10,26 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
-import java.nio.channels.SocketChannel;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class RpcServer {
     private EventLoopGroup bossGroup = null;
     private EventLoopGroup workerGroup = null;
+    private String serverAddress;
+    private Map<String, Object> handlerMap = new HashMap<>();
+    private static ThreadPoolExecutor threadPoolExecutor;
+
+    public RpcServer(String serverAddress) {
+        this.serverAddress = serverAddress;
+    }
 
     public void start() throws Exception {
         if (bossGroup == null && workerGroup == null) {
@@ -43,7 +55,6 @@ public class RpcServer {
             int port = Integer.parseInt(array[1]);
 
             ChannelFuture future = bootstrap.bind(host, port).sync();
-            logger.info("Server started on port {}", port);
 
 //            if (serviceRegistry != null) {
 //                serviceRegistry.register(serverAddress);
@@ -51,5 +62,26 @@ public class RpcServer {
 
             future.channel().closeFuture().sync();
         }
+    }
+
+    public static void submit(Runnable task) {
+        if (threadPoolExecutor == null) {
+            synchronized (RpcServer.class) {
+                if (threadPoolExecutor == null) {
+                    threadPoolExecutor = new ThreadPoolExecutor(16, 16, 600L,
+                            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(65536));
+                }
+            }
+        }
+        threadPoolExecutor.submit(task);
+    }
+
+    public RpcServer addService(String interfaceName, Object serviceBean) {
+        if (!handlerMap.containsKey(interfaceName)) {
+//            logger.info("Loading service: {}", interfaceName);
+            handlerMap.put(interfaceName, serviceBean);
+        }
+
+        return this;
     }
 }

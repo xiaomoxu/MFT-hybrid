@@ -15,5 +15,11 @@ dependencies {
     compile group: 'log4j', name: 'log4j', version: '1.2.17'
     // https://mvnrepository.com/artifact/io.netty/netty-all
     compile group: 'io.netty', name: 'netty-all', version: '4.1.24.Final'
+    // https://mvnrepository.com/artifact/com.dyuproject.protostuff/protostuff-runtime
+    compile group: 'com.dyuproject.protostuff', name: 'protostuff-runtime', version: '1.0.9'
+    // https://mvnrepository.com/artifact/com.dyuproject.protostuff/protostuff-core
+    compile group: 'com.dyuproject.protostuff', name: 'protostuff-core', version: '1.0.9'
+    // https://mvnrepository.com/artifact/org.objenesis/objenesis
+    compile group: 'org.objenesis', name: 'objenesis', version: '2.1'
 
 }
