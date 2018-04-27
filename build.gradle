@@ -1,0 +1,7 @@
+allprojects {
+    apply plugin: 'java'
+    group 'com.antler.mft'
+    version '1.0-SNAPSHOT'
+    sourceCompatibility = 1.8
+}
+
