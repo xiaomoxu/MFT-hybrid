@@ -13,22 +13,25 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-public class RpcServer {
+@Service
+public class RpcServer implements InitializingBean {
     private EventLoopGroup bossGroup = null;
     private EventLoopGroup workerGroup = null;
     private String serverAddress;
-    private Map<String, Object> handlerMap = new HashMap<>();
-    private static ThreadPoolExecutor threadPoolExecutor;
+    @Autowired
+    private RpcRequestHandler rpcRequestHandler;
 
-    public RpcServer(String serverAddress) {
+    public RpcServer() {
+
+    }
+
+    public RpcServer(String serverAddress, RpcRequestHandler rpcRequestHandler) {
         this.serverAddress = serverAddress;
+        this.rpcRequestHandler = rpcRequestHandler;
     }
 
     public void start() throws Exception {
@@ -44,7 +47,7 @@ public class RpcServer {
                                     .addLast(new LengthFieldBasedFrameDecoder(65536, 0, 4, 0, 0))
                                     .addLast(new RpcDecoder(RpcRequest.class))
                                     .addLast(new RpcEncoder(RpcResponse.class))
-                                    .addLast(new RpcHandler(handlerMap));
+                                    .addLast(rpcRequestHandler);
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
@@ -64,24 +67,17 @@ public class RpcServer {
         }
     }
 
-    public static void submit(Runnable task) {
-        if (threadPoolExecutor == null) {
-            synchronized (RpcServer.class) {
-                if (threadPoolExecutor == null) {
-                    threadPoolExecutor = new ThreadPoolExecutor(16, 16, 600L,
-                            TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(65536));
-                }
-            }
+    public void stop() {
+        if (bossGroup != null) {
+            bossGroup.shutdownGracefully();
         }
-        threadPoolExecutor.submit(task);
+        if (workerGroup != null) {
+            workerGroup.shutdownGracefully();
+        }
     }
 
-    public RpcServer addService(String interfaceName, Object serviceBean) {
-        if (!handlerMap.containsKey(interfaceName)) {
-//            logger.info("Loading service: {}", interfaceName);
-            handlerMap.put(interfaceName, serviceBean);
-        }
-
-        return this;
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.start();
     }
 }
