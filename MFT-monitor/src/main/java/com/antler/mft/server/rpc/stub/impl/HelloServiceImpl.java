@@ -1,4 +1,4 @@
-package com.antler.mft.server.stub.impl;
+package com.antler.mft.server.rpc.stub.impl;
 
 import com.antler.mft.server.rpc.RpcService;
 import com.antler.mft.stub.HelloService;
@@ -7,7 +7,7 @@ import com.antler.mft.stub.HelloService;
 @RpcService(HelloService.class)
 public class HelloServiceImpl implements HelloService {
 
-    public HelloServiceImpl(){
+    public HelloServiceImpl() {
 
     }
 
@@ -16,5 +16,11 @@ public class HelloServiceImpl implements HelloService {
         System.out.println("Hello!" + name);
         return "Hello! " + name;
     }
+
+    @Override
+    public String whatYourName(String nullable) {
+        return "Xu Xiao Mo";
+    }
+
 
 }

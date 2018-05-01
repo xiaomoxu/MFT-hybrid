@@ -1,6 +1,6 @@
 package com.antler.mft.server.rpc;
 
-public class Bootstrap {
+public class ServerBootstrap {
     public static void main(String[] args) {
         RpcServerFactory rpcServerFactory = new RpcServerFactoryBuilder().build(null);
         RpcServer rpcServer = rpcServerFactory.createRpcServer();

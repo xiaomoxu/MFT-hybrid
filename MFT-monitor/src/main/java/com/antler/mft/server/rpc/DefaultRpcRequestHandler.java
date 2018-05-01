@@ -1,6 +1,7 @@
 package com.antler.mft.server.rpc;
 
 import com.antler.mft.protocol.RpcRequest;
+import io.netty.channel.ChannelHandler;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
+@ChannelHandler.Sharable
 public class DefaultRpcRequestHandler extends RpcRequestHandler {
 
     @Autowired

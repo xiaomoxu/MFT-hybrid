@@ -1,6 +1,6 @@
 package com.antler.mft.server.rpc;
 
-import com.antler.mft.server.stub.impl.HelloServiceImpl;
+import com.antler.mft.server.rpc.stub.impl.HelloServiceImpl;
 import com.antler.mft.stub.HelloService;
 
 import java.io.InputStream;
