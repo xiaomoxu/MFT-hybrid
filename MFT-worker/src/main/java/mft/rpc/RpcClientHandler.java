@@ -1,10 +1,12 @@
-package mft.server.rpc;
+package mft.rpc;
 
 import com.antler.mft.protocol.RpcRequest;
 import com.antler.mft.protocol.RpcResponse;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
+import mft.rpc.RpcFuture;
+import mft.rpc.proxy.RpcAsyncCallback;
 
 
 import java.net.SocketAddress;
@@ -17,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 //    private static final Logger logger = LoggerFactory.getLogger(RpcClientHandler.class);
 
-    private ConcurrentHashMap<String, RPCFuture> pendingRPC = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, RpcFuture> pendingRPC = new ConcurrentHashMap<>();
 
     private volatile Channel channel;
     private SocketAddress remotePeer;
@@ -45,7 +47,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     @Override
     public void channelRead0(ChannelHandlerContext ctx, RpcResponse response) throws Exception {
         String requestId = response.getRequestId();
-        RPCFuture rpcFuture = pendingRPC.get(requestId);
+        RpcFuture rpcFuture = pendingRPC.get(requestId);
         if (rpcFuture != null) {
             pendingRPC.remove(requestId);
             rpcFuture.done(response);
@@ -62,9 +64,11 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 
-    public RPCFuture sendRequest(RpcRequest request) {
+    public RpcFuture sendRequest(RpcRequest request, RpcAsyncCallback callback) {
         final CountDownLatch latch = new CountDownLatch(1);
-        RPCFuture rpcFuture = new RPCFuture(request);
+        RpcFuture rpcFuture = new RpcFuture(request);
+        if (callback != null)
+            rpcFuture.addCallback(callback);
         pendingRPC.put(request.getRequestId(), rpcFuture);
         channel.writeAndFlush(request).addListener(new ChannelFutureListener() {
             @Override

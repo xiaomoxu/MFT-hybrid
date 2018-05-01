@@ -1,42 +1,26 @@
-package mft.rpc;
+package mft.rpc.proxy;
 
 import com.antler.mft.protocol.RpcRequest;
-import mft.server.rpc.ConnectManage;
-import mft.server.rpc.RPCFuture;
-import mft.server.rpc.RpcClientHandler;
+import mft.rpc.RpcFuture;
+import mft.rpc.ConnectManage;
+import mft.rpc.RpcClientHandler;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.util.UUID;
 
-public class StubProxy<T> implements InvocationHandler {
+public class RpcProxy<T> implements IRpcProxy {
+
     private Class<T> clazz;
 
-    public StubProxy(Class<T> clazz) {
+    public RpcProxy(Class<T> clazz) {
         this.clazz = clazz;
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (Object.class == method.getDeclaringClass()) {
-            String name = method.getName();
-            if ("equals".equals(name)) {
-                return proxy == args[0];
-            } else if ("hashCode".equals(name)) {
-                return System.identityHashCode(proxy);
-            } else if ("toString".equals(name)) {
-                return proxy.getClass().getName() + "@" +
-                        Integer.toHexString(System.identityHashCode(proxy)) +
-                        ", with InvocationHandler " + this;
-            } else {
-                throw new IllegalStateException(String.valueOf(method));
-            }
-        }
-
-        RpcRequest request = createRequest(this.clazz.getName(), method.getName(), args);
+    public RpcFuture remoteCall(String methodName, RpcAsyncCallback callback, Object[] args) {
         RpcClientHandler handler = ConnectManage.getInstance().chooseHandler();
-        RPCFuture rpcFuture = handler.sendRequest(request);
-        return rpcFuture.get();
+        RpcRequest request = createRequest(clazz.getName(), methodName, args);
+        RpcFuture rpcFuture = handler.sendRequest(request, callback);
+        return rpcFuture;
     }
 
     private RpcRequest createRequest(String className, String methodName, Object[] args) {
@@ -101,5 +85,4 @@ public class StubProxy<T> implements InvocationHandler {
 
         return classType;
     }
-
 }

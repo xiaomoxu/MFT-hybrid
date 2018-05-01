@@ -1,6 +1,8 @@
 package mft.rpc;
 
-import com.antler.mft.stub.IStub;
+import mft.rpc.proxy.IRpcProxy;
+import mft.rpc.proxy.RpcProxy;
+import mft.rpc.proxy.StubProxy;
 
 
 import java.lang.reflect.Proxy;
@@ -14,5 +16,10 @@ public class DefaultRpcClient implements RpcClient {
                 new Class<?>[]{interfaceClass},
                 new StubProxy<T>(interfaceClass)
         );
+    }
+
+    @Override
+    public <T> IRpcProxy createAsyncRpcProxy(Class<T> interfaceClass) {
+        return new RpcProxy<>(interfaceClass);
     }
 }

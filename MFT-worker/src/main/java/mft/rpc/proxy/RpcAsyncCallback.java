@@ -1,9 +1,9 @@
-package mft.server.rpc;
+package mft.rpc.proxy;
 
 /**
  * Created by luxiaoxun on 2016-03-17.
  */
-public interface AsyncRPCCallback {
+public interface RpcAsyncCallback {
 
     void success(Object result);
 

@@ -6,8 +6,4 @@ public class DefaultRpcClientFactory implements RpcClientFactory{
         return new DefaultRpcClient();
     }
 
-    @Override
-    public RpcClient createAsyncRpcClient() {
-        return null;
-    }
 }

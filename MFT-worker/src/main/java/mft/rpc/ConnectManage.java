@@ -1,4 +1,4 @@
-package mft.server.rpc;
+package mft.rpc;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;

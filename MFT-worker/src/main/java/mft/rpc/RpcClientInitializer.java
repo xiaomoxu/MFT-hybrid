@@ -1,4 +1,4 @@
-package mft.server.rpc;
+package mft.rpc;
 
 import com.antler.mft.protocol.RpcDecoder;
 import com.antler.mft.protocol.RpcEncoder;

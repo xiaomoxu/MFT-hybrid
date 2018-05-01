@@ -1,7 +1,8 @@
-package mft.server.rpc;
+package mft.rpc;
 
 import com.antler.mft.protocol.RpcRequest;
 import com.antler.mft.protocol.RpcResponse;
+import mft.rpc.proxy.RpcAsyncCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * RPCFuture for async RPC call
  * Created by luxiaoxun on 2016-03-15.
  */
-public class RPCFuture implements Future<Object> {
+public class RpcFuture implements Future<Object> {
 //    private static final Logger logger = LoggerFactory.getLogger(RPCFuture.class);
 
     private Sync sync;
@@ -25,10 +26,10 @@ public class RPCFuture implements Future<Object> {
     private long startTime;
     private long responseTimeThreshold = 5000;
 
-    private List<AsyncRPCCallback> pendingCallbacks = new ArrayList<AsyncRPCCallback>();
+    private List<RpcAsyncCallback> pendingCallbacks = new ArrayList<RpcAsyncCallback>();
     private ReentrantLock lock = new ReentrantLock();
 
-    public RPCFuture(RpcRequest request) {
+    public RpcFuture(RpcRequest request) {
         this.sync = new Sync();
         this.request = request;
         this.startTime = System.currentTimeMillis();
@@ -89,7 +90,7 @@ public class RPCFuture implements Future<Object> {
     private void invokeCallbacks() {
         lock.lock();
         try {
-            for (final AsyncRPCCallback callback : pendingCallbacks) {
+            for (final RpcAsyncCallback callback : pendingCallbacks) {
                 runCallback(callback);
             }
         } finally {
@@ -97,7 +98,7 @@ public class RPCFuture implements Future<Object> {
         }
     }
 
-    public RPCFuture addCallback(AsyncRPCCallback callback) {
+    public RpcFuture addCallback(RpcAsyncCallback callback) {
         lock.lock();
         try {
             if (isDone()) {
@@ -111,18 +112,13 @@ public class RPCFuture implements Future<Object> {
         return this;
     }
 
-    private void runCallback(final AsyncRPCCallback callback) {
+    private void runCallback(final RpcAsyncCallback callback) {
         final RpcResponse res = this.response;
-        RpcClient.submit(new Runnable() {
-            @Override
-            public void run() {
-                if (!res.isError()) {
-                    callback.success(res.getResult());
-                } else {
-                    callback.fail(new RuntimeException("Response error", new Throwable(res.getError())));
-                }
-            }
-        });
+        if (!res.isError()) {
+            callback.success(res.getResult());
+        } else {
+            callback.fail(new RuntimeException("Response error", new Throwable(res.getError())));
+        }
     }
 
     static class Sync extends AbstractQueuedSynchronizer {
