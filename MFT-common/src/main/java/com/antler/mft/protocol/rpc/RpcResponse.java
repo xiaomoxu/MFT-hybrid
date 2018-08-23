@@ -1,4 +1,4 @@
-package com.antler.mft.protocol;
+package com.antler.mft.protocol.rpc;
 
 /**
  * RPC Response

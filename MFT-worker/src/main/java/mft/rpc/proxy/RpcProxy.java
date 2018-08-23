@@ -1,6 +1,6 @@
 package mft.rpc.proxy;
 
-import com.antler.mft.protocol.RpcRequest;
+import com.antler.mft.protocol.rpc.RpcRequest;
 import mft.rpc.RpcFuture;
 import mft.rpc.ConnectManage;
 import mft.rpc.RpcClientHandler;

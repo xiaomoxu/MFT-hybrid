@@ -1,7 +1,9 @@
 package com.antler.mft.server.rpc;
 
-import com.antler.mft.protocol.RpcRequest;
-import com.antler.mft.protocol.RpcResponse;
+import com.antler.mft.logging.Log;
+import com.antler.mft.logging.LogFactory;
+import com.antler.mft.protocol.rpc.RpcRequest;
+import com.antler.mft.protocol.rpc.RpcResponse;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,12 +16,14 @@ import java.util.concurrent.TimeUnit;
 public abstract class RpcRequestHandler extends SimpleChannelInboundHandler<RpcRequest> {
     private static ThreadPoolExecutor threadPoolExecutor;
 
+    private Log log = LogFactory.getLog(RpcRequestHandler.class);
+
     @Override
     public void channelRead0(final ChannelHandlerContext ctx, final RpcRequest request) throws Exception {
         this.submit(new Runnable() {
             @Override
             public void run() {
-//                logger.debug("Receive request " + request.getRequestId());
+                log.debug("Receive request " + request.getRequestId());
                 RpcResponse response = new RpcResponse();
                 response.setRequestId(request.getRequestId());
                 try {
@@ -27,12 +31,12 @@ public abstract class RpcRequestHandler extends SimpleChannelInboundHandler<RpcR
                     response.setResult(result);
                 } catch (Throwable t) {
                     response.setError(t.toString());
-//                    logger.error("RPC Server handle request error",t);
+                    log.error("RPC Server handle request error", t);
                 }
                 ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture channelFuture) throws Exception {
-//                        logger.debug("Send response for request " + request.getRequestId());
+                        log.debug("Send response for request " + request.getRequestId());
                     }
                 });
             }
@@ -43,7 +47,7 @@ public abstract class RpcRequestHandler extends SimpleChannelInboundHandler<RpcR
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-//        logger.error("server caught exception", cause);
+        log.error("server caught exception", cause);
         ctx.close();
     }
 

@@ -1,4 +1,5 @@
 include 'MFT-common'
 include 'MFT-worker'
 include 'MFT-monitor'
+include 'MFT-client'
 

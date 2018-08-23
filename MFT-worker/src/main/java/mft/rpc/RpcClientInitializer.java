@@ -1,9 +1,9 @@
 package mft.rpc;
 
-import com.antler.mft.protocol.RpcDecoder;
-import com.antler.mft.protocol.RpcEncoder;
-import com.antler.mft.protocol.RpcRequest;
-import com.antler.mft.protocol.RpcResponse;
+import com.antler.mft.protocol.rpc.RpcDecoder;
+import com.antler.mft.protocol.rpc.RpcEncoder;
+import com.antler.mft.protocol.rpc.RpcRequest;
+import com.antler.mft.protocol.rpc.RpcResponse;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;

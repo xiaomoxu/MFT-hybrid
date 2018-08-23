@@ -1,7 +1,7 @@
 package mft.rpc;
 
-import com.antler.mft.protocol.RpcRequest;
-import com.antler.mft.protocol.RpcResponse;
+import com.antler.mft.protocol.rpc.RpcRequest;
+import com.antler.mft.protocol.rpc.RpcResponse;
 import mft.rpc.proxy.RpcAsyncCallback;
 
 import java.util.ArrayList;
